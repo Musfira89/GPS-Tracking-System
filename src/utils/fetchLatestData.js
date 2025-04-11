@@ -1,4 +1,4 @@
-// src/utils/fetchLatestSensorData.js
+// src/utils/fetchLatestData.js
 import { db } from "./firebaseConfig";
 import { ref, get, child } from "firebase/database";
 

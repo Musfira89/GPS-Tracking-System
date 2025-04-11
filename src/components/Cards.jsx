@@ -68,7 +68,7 @@ const SensorCards = () => {
   ];
 
   return (
-    <div className="w-full lg:w-[55%] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="w-full lg:w-[55%] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
       {sensorCards.map((sensor, idx) => (
         <div
           key={idx}
@@ -91,7 +91,7 @@ const SensorCards = () => {
             {sensor.status}
           </p>
 
-          <p className="absolute bottom-2 center text-sm text-gray-300 mr-3 mb-3">
+          <p className="absolute bottom-2 center text-xs text-gray-300 mr-3 mb-3">
             Last updated: {formatTimestamp(sensorData.timestamp)}
           </p>
         </div>

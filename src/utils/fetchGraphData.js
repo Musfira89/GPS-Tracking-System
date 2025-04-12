@@ -59,14 +59,7 @@ export const fetchGraphData = async () => {
             fill: true,
             tension: 0.4,
           },
-          {
-            label: "Pressure (hPa)",
-            data: pressureData,
-            borderColor: "#3498DB",
-            backgroundColor: "rgba(52, 152, 219, 0.2)",
-            fill: true,
-            tension: 0.4,
-          },
+         
           {
             label: "Humidity (%)",
             data: humidityData,

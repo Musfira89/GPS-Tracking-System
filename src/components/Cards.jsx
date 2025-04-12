@@ -57,40 +57,40 @@ const SensorCards = () => {
       status: sensorData.deviceOn ? "Live" : "Inactive",  
       img: humidityImg,
       color: "text-emerald-400",
-    },
-    {
-      label: "Pressure", // Keeping dummy data for pressure
-      value: `0 m/s`,
-      status: sensorData.deviceOn ? "Live" : "Inactive",  
-      img: pressureImg,
-      color: "text-sky-400",
-    },
+    }
+    // {
+    //   label: "Pressure", // Keeping dummy data for pressure
+    //   value: `0 m/s`,
+    //   status: sensorData.deviceOn ? "Live" : "Inactive",  
+    //   img: pressureImg,
+    //   color: "text-sky-400",
+    // },
   ];
 
   return (
-    <div className="w-full lg:w-[55%] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+    <div className="w-full lg:w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
       {sensorCards.map((sensor, idx) => (
         <div
           key={idx}
-          className="bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-800 flex flex-col items-center justify-center transition hover:border-gray-700 hover:shadow-xl relative"
-          style={{ height: "350px" }}
+          className="bg-gray-900 p-5 rounded-2xl shadow-xl border border-gray-800 flex flex-col items-center justify-center transition hover:border-gray-700 hover:shadow-xl relative"
+          style={{ height: "340px" }}
         >
           <img
             src={sensor.img}
             alt={sensor.label}
             className="w-20 h-20 object-contain mb-4"
           />
-          <p className="text-sm text-gray-400 tracking-wide uppercase ">
+          <p className="text-sm text-gray-400 tracking-wide uppercase">
             {sensor.label}
           </p>
           <p className={`text-3xl font-semibold mt-2 ${sensor.color}`}>
             {sensor.value}
           </p>
-
+  
           <p className="text-sm text-gray-300 mt-3 bg-gray-800 px-4 py-1 rounded-full">
             {sensor.status}
           </p>
-
+  
           <p className="absolute bottom-2 center text-xs text-gray-300 mr-3 mb-3">
             Last updated: {formatTimestamp(sensorData.timestamp)}
           </p>
@@ -98,6 +98,7 @@ const SensorCards = () => {
       ))}
     </div>
   );
+  
 };
 
 export default SensorCards;

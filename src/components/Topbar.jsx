@@ -1,9 +1,13 @@
-import React from 'react'
+import React from 'react';
 
 const Topbar = () => {
   return (
-    <div>Topbar</div>
-  )
-}
+    <div className="w-full bg-[#0E1117] px-6 py-6 border-b border-[#1F2937]">
+      <h1 className="text-center text-gray-100 text-2xl sm:text-[30px] md:text-2xl font-bold leading-snug">
+        Real-time GPS Tracking System with Environmental Monitoring.
+      </h1>
+    </div>
+  );
+};
 
-export default Topbar
+export default Topbar;

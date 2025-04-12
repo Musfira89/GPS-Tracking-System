@@ -1,67 +1,59 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L, { Icon } from "leaflet";
-import { FaExpand, FaSatelliteDish } from "react-icons/fa";
-import { fetchLatestData } from "../utils/fetchLatestData"; // Importing the new utility
-import markerImg from "../assets/marker.png"; // Add marker image in assets folder
-import SensorCards from "./Cards"; // Adjust the path if needed
+import { Dialog } from "@headlessui/react";
+import { FaExpand, FaSatelliteDish, FaTimes } from "react-icons/fa";
+import { fetchLatestData } from "../utils/fetchLatestData";
+import markerImg from "../assets/marker.png";
+import SensorCards from "./Cards";
 
 // Map center and custom icon
 const center = { lat: 24.927, lng: 67.0835 };
 const customIcon = new Icon({
   iconUrl: markerImg,
-  iconSize: [30, 30], // Reduced icon size
+  iconSize: [30, 30],
   iconAnchor: [15, 30],
   popupAnchor: [0, -30],
 });
 
-// Live GPS Marker component
-const LiveGPSMarker = ({ gpsData }) => {
+// Function to get location from coordinates using reverse geocoding
+const getLocationFromCoordinates = async (lat, lon) => {
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+  );
+  const data = await response.json();
+  const address = data?.address;
+
+  // Format the address as a readable string (can customize which parts to show)
+  if (address) {
+    const { road, city, country } = address;
+    return `${road || ""}, ${city || ""}, ${country || ""}`;
+  }
+  return "Location not found";
+};
+
+const LiveGPSMarker = ({ gpsData, onMarkerClick }) => {
   const map = useMap();
   const [position, setPosition] = useState(null);
-  const [popupContent, setPopupContent] = useState(null); // To store popup content
 
   useEffect(() => {
     if (gpsData) {
       const { latitude, longitude } = gpsData;
       setPosition({ lat: latitude, lng: longitude });
-      map.flyTo([latitude, longitude], 14, { animate: true }); // Ensures smoother zoom without zoom-out
+      map.flyTo([latitude, longitude], 14, { animate: true });
     }
   }, [gpsData, map]);
-
-  const handleMarkerClick = () => {
-    const { latitude, longitude, speed, timestamp } = gpsData;
-    setPopupContent(
-      <div>
-        <p>
-          <b>Lat:</b> {latitude}
-        </p>
-        <p>
-          <b>Lng:</b> {longitude}
-        </p>
-        <p>
-          <b>Time:</b> {timestamp}
-        </p>
-        <p>
-          <b>Speed:</b> {speed} km/h
-        </p>
-      </div>
-    );
-  };
 
   return position ? (
     <Marker
       position={position}
       icon={customIcon}
-      eventHandlers={{ click: handleMarkerClick }}
-    >
-      <Popup>{popupContent}</Popup>
-    </Marker>
+      eventHandlers={{ click: () => onMarkerClick(gpsData) }}
+    />
   ) : null;
 };
 
-// MapControls component for zooming and layer switching
 const MapControls = ({ setTileLayer }) => {
   const map = useMap();
 
@@ -97,32 +89,46 @@ const MapControls = ({ setTileLayer }) => {
   );
 };
 
-// Main MapComponent with Map and Sensor Cards
 const MapComponent = () => {
   const [tileLayer, setTileLayer] = useState("map");
   const [gpsData, setGpsData] = useState(null);
-  const [graphData, setGraphData] = useState(null); // For environmental data
+  const [graphData, setGraphData] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedData, setSelectedData] = useState(null);
+  const [location, setLocation] = useState(""); // State for formatted location
 
-  // Fetch the latest GPS and environment data
   useEffect(() => {
     const fetchData = async () => {
-      const gpsResponse = await fetchLatestData(); // Assuming you still fetch GPS data like before
+      const gpsResponse = await fetchLatestData();
       setGpsData(gpsResponse);
+
+      // Get location using reverse geocoding
+      if (gpsResponse) {
+        const location = await getLocationFromCoordinates(
+          gpsResponse.latitude,
+          gpsResponse.longitude
+        );
+        setLocation(location);
+      }
 
       const graphResponse = await fetchLatestData();
       setGraphData(graphResponse);
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 2000); // Update data every 2 seconds
-
-    return () => clearInterval(interval); // Cleanup interval on component unmount
+    const interval = setInterval(fetchData, 2000);
+    return () => clearInterval(interval);
   }, []);
+
+  const openDialog = (data) => {
+    setSelectedData(data);
+    setIsDialogOpen(true);
+  };
 
   if (!gpsData) {
     return (
       <div className="p-4 bg-gray-950 text-white h-full font-sans">
-        <div>Loading GPS Data...</div> {/* Fallback UI */}
+        <div>Loading GPS Data...</div>
       </div>
     );
   }
@@ -131,12 +137,12 @@ const MapComponent = () => {
     <div className="p-4 bg-gray-950 text-white h-full font-sans">
       <div className="flex flex-col lg:flex-row gap-4 items-stretch">
         {/* Map Section */}
-        <div className="w-full lg:w-[45%] bg-gray-900 p-4 rounded-2xl shadow-xl relative">
+        <div className="w-full lg:w-[65%] bg-gray-900 p-4 rounded-2xl shadow-xl relative">
           <MapContainer
             center={center}
             zoom={2}
             zoomControl={false}
-            style={{ height: "320px", borderRadius: "0.75rem" }} // Increased height of the map
+            style={{ height: "320px", borderRadius: "0.75rem", zIndex: 1 }}
           >
             <TileLayer
               url={
@@ -145,14 +151,73 @@ const MapComponent = () => {
                   : "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
               }
             />
-            {gpsData && <LiveGPSMarker gpsData={gpsData} />}
+            {gpsData && (
+              <LiveGPSMarker gpsData={gpsData} onMarkerClick={openDialog} />
+            )}
             <MapControls setTileLayer={setTileLayer} />
           </MapContainer>
         </div>
 
-        {/* Sensor Cards Section */}
-        <SensorCards graphData={graphData} />
+        {/* Sensor Cards */}
+        <div className="w-full lg:w-[35%]">
+          <SensorCards graphData={graphData} />
+        </div>
       </div>
+
+      {/* Dialog Modal for GPS Info */}
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[1000]">
+          <Dialog.Panel className="bg-gradient-to-r from-[#10141f] via-[#1c2534] to-[#141f28] text-white p-12 py-14 rounded-3xl shadow-2xl border border-gray-700 w-full max-w-md transition-transform transform duration-300 ease-in-out">
+            {/* Title */}
+            <Dialog.Title className="text-2xl font-bold mb-6 text-center leading-snug tracking-wider text-gray-100">
+              GPS INFO
+            </Dialog.Title>
+
+            {/* Information */}
+            <div className="space-y-4 text-base leading-relaxed">
+              <div className="flex justify-between">
+                <span className="font-semibold">Latitude:</span>
+                <span className="text-gray-300">{selectedData?.latitude}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Longitude:</span>
+                <span className="text-gray-300">{selectedData?.longitude}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Speed:</span>
+                <span className="text-gray-300">
+                  {selectedData?.speed} km/h
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Timestamp:</span>
+                <span className="text-gray-300">{selectedData?.timestamp}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Location:</span>
+                <span className="text-gray-300 ml-22 text-right">
+                  {location}
+                </span>{" "}
+                {/* Added margin right for spacing */}
+              </div>
+            </div>
+
+            {/* Close Button Floating */}
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={() => setIsDialogOpen(false)}
+                className="text-gray-400 hover:text-white transition-all duration-200 ease-in-out"
+              >
+                <FaTimes className="text-xl" />
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
     </div>
   );
 };

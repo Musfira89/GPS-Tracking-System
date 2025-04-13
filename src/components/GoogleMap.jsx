@@ -19,18 +19,20 @@ const customIcon = new Icon({
 
 // Function to get location from coordinates using reverse geocoding
 const getLocationFromCoordinates = async (lat, lon) => {
-  const response = await fetch(
-    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
-  );
-  const data = await response.json();
-  const address = data?.address;
-
-  // Format the address as a readable string (can customize which parts to show)
-  if (address) {
-    const { road, city, country } = address;
-    return `${road || ""}, ${city || ""}, ${country || ""}`;
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+    );
+    const data = await response.json();
+    const address = data?.address;
+    if (address) {
+      const { road, city, country } = address;
+      return `${road || ""}, ${city || ""}, ${country || ""}`;
+    }
+    return "Location not found";
+  } catch (err) {
+    return "Error retrieving location";
   }
-  return "Location not found";
 };
 
 const LiveGPSMarker = ({ gpsData, onMarkerClick }) => {
@@ -38,9 +40,14 @@ const LiveGPSMarker = ({ gpsData, onMarkerClick }) => {
   const [position, setPosition] = useState(null);
 
   useEffect(() => {
-    if (gpsData) {
+    if (
+      gpsData &&
+      typeof gpsData.latitude === "number" &&
+      typeof gpsData.longitude === "number"
+    ) {
       const { latitude, longitude } = gpsData;
-      setPosition({ lat: latitude, lng: longitude });
+      const newPosition = { lat: latitude, lng: longitude };
+      setPosition(newPosition);
       map.flyTo([latitude, longitude], 14, { animate: true });
     }
   }, [gpsData, map]);
@@ -95,20 +102,24 @@ const MapComponent = () => {
   const [graphData, setGraphData] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
-  const [location, setLocation] = useState(""); // State for formatted location
+  const [location, setLocation] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       const gpsResponse = await fetchLatestData();
-      setGpsData(gpsResponse);
 
-      // Get location using reverse geocoding
-      if (gpsResponse) {
-        const location = await getLocationFromCoordinates(
+      if (
+        gpsResponse &&
+        typeof gpsResponse.latitude === "number" &&
+        typeof gpsResponse.longitude === "number"
+      ) {
+        setGpsData(gpsResponse);
+
+        const resolvedLocation = await getLocationFromCoordinates(
           gpsResponse.latitude,
           gpsResponse.longitude
         );
-        setLocation(location);
+        setLocation(resolvedLocation);
       }
 
       const graphResponse = await fetchLatestData();
@@ -172,12 +183,10 @@ const MapComponent = () => {
       >
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[1000]">
           <Dialog.Panel className="bg-gradient-to-r from-[#10141f] via-[#1c2534] to-[#141f28] text-white p-12 py-14 rounded-3xl shadow-2xl border border-gray-700 w-full max-w-md transition-transform transform duration-300 ease-in-out">
-            {/* Title */}
             <Dialog.Title className="text-2xl font-bold mb-6 text-center leading-snug tracking-wider text-gray-100">
               GPS INFO
             </Dialog.Title>
 
-            {/* Information */}
             <div className="space-y-4 text-base leading-relaxed">
               <div className="flex justify-between">
                 <span className="font-semibold">Latitude:</span>
@@ -190,9 +199,12 @@ const MapComponent = () => {
               <div className="flex justify-between">
                 <span className="font-semibold">Speed:</span>
                 <span className="text-gray-300">
-                  {selectedData?.speed} km/h
+                  {selectedData?.speed !== undefined
+                    ? `${(selectedData.speed * 3.6).toFixed(2)} km/h`
+                    : "N/A"}
                 </span>
               </div>
+
               <div className="flex justify-between">
                 <span className="font-semibold">Timestamp:</span>
                 <span className="text-gray-300">{selectedData?.timestamp}</span>
@@ -201,12 +213,10 @@ const MapComponent = () => {
                 <span className="font-semibold">Location:</span>
                 <span className="text-gray-300 ml-22 text-right">
                   {location}
-                </span>{" "}
-                {/* Added margin right for spacing */}
+                </span>
               </div>
             </div>
 
-            {/* Close Button Floating */}
             <div className="absolute top-4 right-4">
               <button
                 onClick={() => setIsDialogOpen(false)}

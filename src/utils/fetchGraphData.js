@@ -1,13 +1,11 @@
 import { db } from "./firebaseConfig";
-import { ref, get, child } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 
-export const fetchGraphData = async () => {
-  const dbRef = ref(db);
-  try {
-    const snapshot = await get(child(dbRef, "TrackingData"));
+export const fetchGraphData = (callback) => {
+  const dbRef = ref(db, "TrackingData");
+  const unsubscribe = onValue(dbRef, (snapshot) => {
     if (snapshot.exists()) {
       const data = snapshot.val();
-
       const dateKeys = Object.keys(data).sort();
       const latestDateKey = dateKeys[dateKeys.length - 1];
       const dayData = data[latestDateKey];
@@ -34,7 +32,6 @@ export const fetchGraphData = async () => {
 
       const recentData = filteredData.filter((entry) => entry.time >= fiveMinutesAgo);
 
-      // Show time only in AM/PM format
       const labels = recentData.map((entry) =>
         entry.time.toLocaleTimeString("en-US", {
           hour: "2-digit",
@@ -45,9 +42,9 @@ export const fetchGraphData = async () => {
 
       const temperatureData = recentData.map((entry) => entry.temperature);
       const humidityData = recentData.map((entry) => entry.humidity);
-      const pressureData = recentData.map((entry) => entry.pressure);
 
-      return {
+      // Call the callback function to update the graph data
+      callback({
         labels,
         latestDate: latestDateKey,
         datasets: [
@@ -59,7 +56,6 @@ export const fetchGraphData = async () => {
             fill: true,
             tension: 0.4,
           },
-         
           {
             label: "Humidity (%)",
             data: humidityData,
@@ -69,13 +65,11 @@ export const fetchGraphData = async () => {
             tension: 0.4,
           },
         ],
-      };
+      });
     } else {
       console.log("No data found in Firebase.");
-      return null;
     }
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return null;
-  }
+  });
+
+  return () => unsubscribe(); // Cleanup on component unmount
 };

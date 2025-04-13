@@ -39,17 +39,15 @@ const SensorGraph = () => {
   }, []);
 
   useEffect(() => {
-    const fetchAndUpdate = async () => {
-      const data = await fetchGraphData();
+    // Use the real-time listener to fetch and update data
+    const unsubscribe = fetchGraphData((data) => {
       if (data) {
         setGraphData({ labels: data.labels, datasets: data.datasets });
         setLatestDate(data.latestDate);
       }
-    };
+    });
 
-    fetchAndUpdate();
-    const intervalId = setInterval(fetchAndUpdate, 2000);
-    return () => clearInterval(intervalId);
+    return unsubscribe; // Cleanup the listener on unmount
   }, []);
 
   const options = useMemo(() => ({

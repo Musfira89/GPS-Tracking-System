@@ -11,7 +11,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp({
-  apiKey: "fake-api-key", // required, dummy works
+  apiKey: "fake-api-key", 
   authDomain: `${firebaseConfig.projectId}.firebaseapp.com`,
   databaseURL: firebaseConfig.databaseURL,
   projectId: firebaseConfig.projectId,

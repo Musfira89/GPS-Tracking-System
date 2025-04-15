@@ -58,13 +58,7 @@ const SensorCards = () => {
       img: humidityImg,
       color: "text-emerald-400",
     }
-    // {
-    //   label: "Pressure", // Keeping dummy data for pressure
-    //   value: `0 m/s`,
-    //   status: sensorData.deviceOn ? "Live" : "Inactive",  
-    //   img: pressureImg,
-    //   color: "text-sky-400",
-    // },
+
   ];
 
   return (

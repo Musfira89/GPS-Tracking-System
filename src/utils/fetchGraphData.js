@@ -28,7 +28,7 @@ export const fetchGraphData = (callback) => {
       });
 
       const latestTime = filteredData[filteredData.length - 1]?.time;
-      const fiveMinutesAgo = new Date(latestTime.getTime() - 2.5 * 60 * 1000);
+      const fiveMinutesAgo = new Date(latestTime.getTime() - 3 * 60 * 1000);
 
       const recentData = filteredData.filter((entry) => entry.time >= fiveMinutesAgo);
 

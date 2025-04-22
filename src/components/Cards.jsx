@@ -1,7 +1,6 @@
 // src/components/Cards.jsx
 import React, { useEffect, useState } from "react";
 import temperatureImg from "../assets/temperature.webp";
-import pressureImg from "../assets/pressure.png"; // Placeholder since no pressure data in Firebase
 import humidityImg from "../assets/humidity.jpg";
 import { fetchLatestData } from "../utils/fetchLatestData";
 
@@ -22,43 +21,42 @@ const SensorCards = () => {
     const [date, time] = timestamp.split(" ");
     const [year, month, day] = date.split("-");
     const [hours, minutes, seconds] = time.split("-");
-  
+
     const dateObject = new Date(year, month - 1, day, hours, minutes, seconds);
-  
+
     const formattedDate = dateObject.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
     }); // Example: "April 9, 2025"
-  
-    const formattedTime = dateObject.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    }).toLowerCase(); // Example: "4:57 pm"
-  
+
+    const formattedTime = dateObject
+      .toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .toLowerCase(); // Example: "4:57 pm"
+
     return `${formattedDate}, ${formattedTime}`;
   };
-  
-  
 
   // Dynamically creating the sensor cards
   const sensorCards = [
     {
       label: "Temperature",
       value: `${sensorData.temperature}°C`,
-      status: sensorData.deviceOn ? "Live" : "Inactive", 
+      status: sensorData.deviceOn ? "Live" : "Inactive",
       img: temperatureImg,
       color: "text-rose-400",
     },
     {
       label: "Humidity",
       value: `${sensorData.humidity}%`,
-      status: sensorData.deviceOn ? "Live" : "Inactive",  
+      status: sensorData.deviceOn ? "Live" : "Inactive",
       img: humidityImg,
       color: "text-emerald-400",
-    }
-
+    },
   ];
 
   return (
@@ -80,11 +78,7 @@ const SensorCards = () => {
           <p className={`text-3xl font-semibold mt-2 ${sensor.color}`}>
             {sensor.value}
           </p>
-  
-          <p className="text-sm text-gray-300 mt-3 bg-gray-800 px-4 py-1 rounded-full">
-            {sensor.status}
-          </p>
-  
+
           <p className="absolute bottom-2 center text-xs text-gray-300 mr-3 mb-3">
             Last updated: {formatTimestamp(sensorData.timestamp)}
           </p>
@@ -92,7 +86,6 @@ const SensorCards = () => {
       ))}
     </div>
   );
-  
 };
 
 export default SensorCards;

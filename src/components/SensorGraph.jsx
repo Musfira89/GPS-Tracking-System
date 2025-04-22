@@ -69,7 +69,7 @@ const SensorGraph = () => {
       },
       title: {
         display: true,
-        text: "Sensor Data (Last 2.5 Minutes)",
+        text: "Sensor Data (Last 3 Minutes)",
         font: {
           size: isMobile ? 14 : 16,
         },

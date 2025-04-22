@@ -8,8 +8,8 @@ import { fetchLatestData } from "../utils/fetchLatestData";
 import markerImg from "../assets/marker.png";
 import SensorCards from "./Cards";
 
-// Map center and custom icon
 const center = { lat: 24.927, lng: 67.0835 };
+
 const customIcon = new Icon({
   iconUrl: markerImg,
   iconSize: [30, 30],
@@ -17,7 +17,6 @@ const customIcon = new Icon({
   popupAnchor: [0, -30],
 });
 
-// Function to get location from coordinates using reverse geocoding
 const getLocationFromCoordinates = async (lat, lon) => {
   try {
     const response = await fetch(
@@ -33,6 +32,32 @@ const getLocationFromCoordinates = async (lat, lon) => {
   } catch (err) {
     return "Error retrieving location";
   }
+};
+
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return "Invalid timestamp";
+
+  const [date, time] = timestamp.split(" ");
+  const [year, month, day] = date.split("-");
+  const [hours, minutes, seconds] = time.split("-");
+
+  const dateObject = new Date(year, month - 1, day, hours, minutes, seconds);
+
+  const formattedDate = dateObject.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const formattedTime = dateObject
+    .toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .toLowerCase();
+
+  return `${formattedDate}, ${formattedTime}`;
 };
 
 const LiveGPSMarker = ({ gpsData, onMarkerClick }) => {
@@ -147,7 +172,6 @@ const MapComponent = () => {
   return (
     <div className="p-4 bg-gray-950 text-white h-full font-sans">
       <div className="flex flex-col lg:flex-row gap-4 items-stretch">
-        {/* Map Section */}
         <div className="w-full lg:w-[65%] bg-gray-900 p-4 rounded-2xl shadow-xl relative">
           <MapContainer
             center={center}
@@ -169,13 +193,12 @@ const MapComponent = () => {
           </MapContainer>
         </div>
 
-        {/* Sensor Cards */}
         <div className="w-full lg:w-[35%]">
           <SensorCards graphData={graphData} />
         </div>
       </div>
 
-      {/* Dialog Modal for GPS Info */}
+      {/* Dialog */}
       <Dialog
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
@@ -204,10 +227,11 @@ const MapComponent = () => {
                     : "N/A"}
                 </span>
               </div>
-
               <div className="flex justify-between">
                 <span className="font-semibold">Timestamp:</span>
-                <span className="text-gray-300">{selectedData?.timestamp}</span>
+                <span className="text-gray-300">
+                  {formatTimestamp(selectedData?.timestamp)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold">Location:</span>

@@ -263,7 +263,7 @@ const MapComponent = () => {
         className="relative z-50"
       >
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[1000]">
-          <Dialog.Panel className="bg-gradient-to-r from-[#10141f] via-[#1c2534] to-[#141f28] text-white p-4 py-8 rounded-3xl shadow-2xl border border-gray-700 w-full max-w-[80%] sm:max-w-sm md:max-w-[450px]">
+          <Dialog.Panel className="bg-gradient-to-r from-[#10141f] via-[#1c2534] to-[#141f28] text-white p-4 py-8 rounded-3xl shadow-2xl border border-gray-700 w-full max-w-[90%] sm:max-w-sm md:max-w-[450px]">
             <Dialog.Title className="text-2xl font-bold mb-6 text-center leading-snug tracking-wider">
               GPS INFO
             </Dialog.Title>
@@ -290,7 +290,7 @@ const MapComponent = () => {
                   {formatTimestamp(selectedData?.timestamp)}
                 </span>
               </div>
-              <div className="flex justify-between gap-28">
+              <div className="flex justify-between gap-12">
                 <span className="font-semibold">Location:</span>
                 <span className="text-gray-300 text-right break-words">
                   {location}

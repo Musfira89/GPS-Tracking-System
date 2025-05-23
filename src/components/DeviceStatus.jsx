@@ -59,18 +59,18 @@ const DeviceStatus = () => {
   };
 
   return (
-    <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto p-4 sm:p-6 md:p-8 bg-gray-950 rounded-2xl shadow-xl border border-gray-800 font-sora">
-      <div className="flex flex-col items-center text-center space-y-4 sm:space-y-6">
+    <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto p-3 sm:p-12 md:p-8 bg-gray-950 rounded-2xl shadow-xl border border-gray-800 font-sora">
+      <div className="flex flex-col items-center text-center space-y-3 sm:space-y-6 text-xs sm:text-sm">
         <img
           src={device}
           alt="Device"
-          className="w-32 sm:w-40 md:w-48 h-auto object-contain transition-transform duration-300 hover:scale-105"
+          className="w-28 sm:w-40 md:w-48 h-auto object-contain transition-transform duration-300 hover:scale-105"
         />
-        <h2 className="text-xl sm:text-2xl font-bold text-white tracking-wide">
+        <h2 className="text-lg sm:text-2xl font-bold text-white tracking-wide">
           Device Status
         </h2>
-
-        <div className="w-full space-y-4 sm:space-y-5">
+  
+        <div className="w-full space-y-3 sm:space-y-5">
           <StatusCard
             icon={<BatteryFullIcon className="text-green-400" />}
             label="Battery"
@@ -93,6 +93,7 @@ const DeviceStatus = () => {
       </div>
     </div>
   );
+  
 };
 
 const StatusCard = ({ icon, label, value, valueColor }) => (

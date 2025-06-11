@@ -308,6 +308,7 @@ const MapComponent = () => {
           </Dialog.Panel>
         </div>
       </Dialog>
+      
     </div>
   );
 };

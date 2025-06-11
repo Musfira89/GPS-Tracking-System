@@ -8,16 +8,18 @@ import { fetchLatestData } from "../utils/fetchLatestData";
 const DeviceStatus = () => {
   const [status, setStatus] = useState("Loading...");
   const [lastUpdated, setLastUpdated] = useState("Fetching...");
-  const battery = "87%"; // Static battery percentage
+  const [battery, setBattery] = useState("Fetching...");
 
   useEffect(() => {
     const getData = async () => {
       const data = await fetchLatestData();
       if (data) {
         setStatus(data.status || "Unknown");
+        setBattery(data.battery ? `${data.battery}%` : "Unavailable");
         setLastUpdated(formatTimestamp(data.timestamp));
       } else {
         setStatus("Unavailable");
+        setBattery("Unavailable");
         setLastUpdated("N/A");
       }
     };
@@ -69,7 +71,7 @@ const DeviceStatus = () => {
         <h2 className="text-lg sm:text-2xl font-bold text-white tracking-wide">
           Device Status
         </h2>
-  
+
         <div className="w-full space-y-3 sm:space-y-5">
           <StatusCard
             icon={<BatteryFullIcon className="text-green-400" />}
@@ -77,6 +79,7 @@ const DeviceStatus = () => {
             value={battery}
             valueColor="text-green-400"
           />
+
           <StatusCard
             icon={<WifiIcon className="text-blue-400" />}
             label="Status"
@@ -93,7 +96,6 @@ const DeviceStatus = () => {
       </div>
     </div>
   );
-  
 };
 
 const StatusCard = ({ icon, label, value, valueColor }) => (
